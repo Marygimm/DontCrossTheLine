@@ -10,7 +10,7 @@ import MapKit
 import UserNotifications
 import Combine
 
-class ViewController: UIViewController {
+class MapScreen: UIViewController {
     
     //MARK: - Properties
     
@@ -20,7 +20,6 @@ class ViewController: UIViewController {
         return view
     }()
 
-    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
@@ -57,13 +56,14 @@ class ViewController: UIViewController {
     var cancelAlerts: Bool = false
     
     private var subscriber: AnyCancellable?
+    private var subscriberChangePermissions: AnyCancellable?
     private var subscriberToLocation: AnyCancellable?
 
     //MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        LocationManager.shared.setupLocationManager()
+        LocationManager.shared.checkLocationServices()
         createSubscribers()
         setupUI()
        
@@ -121,6 +121,17 @@ class ViewController: UIViewController {
         subscriberToLocation = LocationManager.shared.$location.sink(receiveValue: { [weak self] location in
             guard let locationValue = location else { return }
             self?.createPin(location: locationValue)
+        })
+        
+        subscriberChangePermissions = LocationManager.shared.$showActivateLocation.sink(receiveValue: { [weak self] isToShowAlert in
+            if isToShowAlert {
+                DispatchQueue.main.async {
+                    self?.showAlert(title: "Allow location services", message: "Go to Settings -> Privacy and enable location", action: UIAlertAction(title: "Ok", style: .default, handler: { _ in
+                        exit(1)
+                    }))
+                    self?.updateTextAndColor(danger: false)
+                }
+            }
         })
     }
     
@@ -180,7 +191,8 @@ class ViewController: UIViewController {
 
 }
 
-extension ViewController: MKMapViewDelegate {
+//MARK: - MKMapViewDelegate
+extension MapScreen: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let overlay = overlay as? MKCircle {
