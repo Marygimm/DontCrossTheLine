@@ -19,6 +19,7 @@ class MapScreen: UIViewController {
         view.backgroundColor = .white
         return view
     }()
+    
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -84,12 +85,16 @@ class MapScreen: UIViewController {
         map.layer.cornerRadius = 10
         
         container.addSubview(image)
-        image.anchor(left: container.leftAnchor, bottom: map.topAnchor, right: container.rightAnchor, paddingTop: 10, paddingLeft: 20, paddingBottom: 30, paddingRight: 20)
-        image.setDimensions(height: 60, width: 60)
+        image.anchor(bottom: map.topAnchor, paddingBottom: 10)
+        image.centerX(inView: container)
+        image.setDimensions(height: 100, width: 180)
+        image.contentMode = .scaleAspectFill
+        image.clipsToBounds = true
+        image.layer.cornerRadius = 5
 
         
         container.addSubview(titleLabel)
-        titleLabel.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: image.topAnchor, right: container.rightAnchor, paddingTop: 40, paddingLeft: 20, paddingRight: 20)
+        titleLabel.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: image.topAnchor, right: container.rightAnchor, paddingTop: 40, paddingLeft: 20, paddingBottom: 10, paddingRight: 20)
     
 
         map.delegate = self
