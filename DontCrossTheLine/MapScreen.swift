@@ -89,10 +89,7 @@ class MapScreen: UIViewController {
         image.contentMode = .scaleAspectFill
         image.clipsToBounds = true
         image.layer.cornerRadius = 5
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            LocationManager.shared.createLocalNotification()
-        }
-        
+  
         container.addSubview(titleLabel)
         titleLabel.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: image.topAnchor, right: container.rightAnchor, paddingTop: 40, paddingLeft: 20, paddingBottom: 10, paddingRight: 20)
         
