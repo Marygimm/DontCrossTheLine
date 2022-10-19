@@ -10,7 +10,9 @@ import MapKit
 import UserNotifications
 import Combine
 
-class ViewController: UIViewController, MKMapViewDelegate {
+class ViewController: UIViewController {
+    
+    //MARK: - Properties
     
     private lazy var container: UIView = {
         let view = UIView()
@@ -56,34 +58,19 @@ class ViewController: UIViewController, MKMapViewDelegate {
     
     private var subscriber: AnyCancellable?
     private var subscriberToLocation: AnyCancellable?
-    private var subscribeToButton: AnyCancellable?
-        
+
+    //MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         LocationManager.shared.setupLocationManager()
-        subscriber = LocationManager.shared.$isToShowAlert.sink(receiveValue: { [weak self] value in
-            if value {
-                DispatchQueue.main.async {
-                    self?.showAlert()
-                    self?.updateTextAndColor(danger: value)
-                }
-            }
-        })
-        subscriberToLocation = LocationManager.shared.$location.sink(receiveValue: { [weak self] location in
-            guard let locationValue = location else { return }
-            self?.createPin(location: locationValue)
-        })
+        createSubscribers()
         setupUI()
        
     }
     
-    func updateTextAndColor(danger: Bool) {
-        titleLabel.text = danger ? "POLICE WILL AREST YOU! 🚔": "This map will help you stay out of jail 🕊"
-        titleLabel.textColor = danger ? .red : .black
-        image.image = UIImage(named: danger ? "jail" : "free")
+    //MARK: - Update UI
 
-    }
-    
     func setupUI() {
         view.addSubview(container)
         container.fillSuperview()
@@ -112,6 +99,33 @@ class ViewController: UIViewController, MKMapViewDelegate {
         updateTextAndColor(danger: false)
     }
     
+    
+    func updateTextAndColor(danger: Bool) {
+        titleLabel.text = danger ? "POLICE WILL AREST YOU! 🚔": "This map will help you stay out of jail 🕊"
+        titleLabel.textColor = danger ? .red : .black
+        image.image = UIImage(named: danger ? "jail" : "free")
+
+    }
+    
+    //MARK: - Listeners
+    
+    func createSubscribers() {
+        subscriber = LocationManager.shared.$isToShowAlert.sink(receiveValue: { [weak self] isToShowAlert in
+            if isToShowAlert {
+                DispatchQueue.main.async {
+                    self?.showAlert(title: "You have reached the limit", message: "Please come back or police will pick you up")
+                    self?.updateTextAndColor(danger: isToShowAlert)
+                }
+            }
+        })
+        subscriberToLocation = LocationManager.shared.$location.sink(receiveValue: { [weak self] location in
+            guard let locationValue = location else { return }
+            self?.createPin(location: locationValue)
+        })
+    }
+    
+    //MARK: - Actions
+    
     func createPin(location: CLLocation) {
         let pin = MKPointAnnotation()
         pin.coordinate = location.coordinate
@@ -123,30 +137,32 @@ class ViewController: UIViewController, MKMapViewDelegate {
         self.map.addOverlay(circle)
     }
     
-    func showAlert() {
-        
+    func showAlert(title: String, message: String, action: UIAlertAction? = nil ) {
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: "You have reached the limit", message: "Please come back or police will pick you up", preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "Reset Location", style: UIAlertAction.Style.destructive, handler: { [weak self]_ in
-                guard let mapAnnotations = self?.map.annotations, let overlay = self?.map.overlays.first else { return }
-                self?.map.removeAnnotations(mapAnnotations)
-                self?.map.removeOverlay(overlay)
-                LocationManager.shared.location = nil
-                LocationManager.shared.manager.requestLocation()
-                self?.updateTextAndColor(danger: false)
-            }))
-            alert.addAction(UIAlertAction(title: "I will go back", style: UIAlertAction.Style.default, handler: { [weak self]_ in
-                self?.updateTextAndColor(danger: false)
-            }))
-            
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            if let actions = action {
+                alert.addAction(actions)
+            } else {
+                alert.addAction(UIAlertAction(title: "Reset Location", style: UIAlertAction.Style.destructive, handler: { [weak self]_ in
+                    guard let mapAnnotations = self?.map.annotations, let overlay = self?.map.overlays.first else { return }
+                    self?.map.removeAnnotations(mapAnnotations)
+                    self?.map.removeOverlay(overlay)
+                    LocationManager.shared.location = nil
+                    LocationManager.shared.manager.requestLocation()
+                    self?.updateTextAndColor(danger: false)
+                }))
+                alert.addAction(UIAlertAction(title: "I will go back", style: UIAlertAction.Style.default, handler: { [weak self]_ in
+                    self?.updateTextAndColor(danger: false)
+                }))
+            }
             self.present(alert, animated: true, completion: nil)
         }
     }
     
     func requestNotification() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge], completionHandler: { didAllow, error in
-            
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge], completionHandler: { [weak self] didAllow, _ in
+            guard !didAllow else { return }
+            self?.showAlert(title: "Allow Notifications", message: "Will not be able to notify you in the Background", action: UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
         })
     }
     
@@ -161,10 +177,10 @@ class ViewController: UIViewController, MKMapViewDelegate {
         button.setTitle(cancelAlerts ? "Reativate Alerts" : "STOP Alerts!", for: .normal)
     }
     
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-    }
+
+}
+
+extension ViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let overlay = overlay as? MKCircle {
@@ -176,97 +192,5 @@ class ViewController: UIViewController, MKMapViewDelegate {
         else {
             return MKOverlayRenderer(overlay: overlay)
         }
-    }
-}
-
-
-
-
-extension UIView {
-    func anchor(top: NSLayoutYAxisAnchor? = nil,
-                left: NSLayoutXAxisAnchor? = nil,
-                bottom: NSLayoutYAxisAnchor? = nil,
-                right: NSLayoutXAxisAnchor? = nil,
-                paddingTop: CGFloat = 0,
-                paddingLeft: CGFloat = 0,
-                paddingBottom: CGFloat = 0,
-                paddingRight: CGFloat = 0,
-                width: CGFloat? = nil,
-                height: CGFloat? = nil) {
-        
-        translatesAutoresizingMaskIntoConstraints = false
-        
-        if let top = top {
-            topAnchor.constraint(equalTo: top, constant: paddingTop).isActive = true
-        }
-        
-        if let left = left {
-            leftAnchor.constraint(equalTo: left, constant: paddingLeft).isActive = true
-        }
-        
-        if let bottom = bottom {
-            bottomAnchor.constraint(equalTo: bottom, constant: -paddingBottom).isActive = true
-        }
-        
-        if let right = right {
-            rightAnchor.constraint(equalTo: right, constant: -paddingRight).isActive = true
-        }
-        
-        if let width = width {
-            widthAnchor.constraint(equalToConstant: width).isActive = true
-        }
-        
-        if let height = height {
-            heightAnchor.constraint(equalToConstant: height).isActive = true
-        }
-    }
-    
-    func center(inView view: UIView, yConstant: CGFloat? = 0) {
-        translatesAutoresizingMaskIntoConstraints = false
-        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: yConstant!).isActive = true
-    }
-    
-    func centerX(inView view: UIView, topAnchor: NSLayoutYAxisAnchor? = nil, paddingTop: CGFloat? = 0) {
-        translatesAutoresizingMaskIntoConstraints = false
-        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        
-        if let topAnchor = topAnchor {
-            self.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop!).isActive = true
-        }
-    }
-    
-    func centerY(inView view: UIView, leftAnchor: NSLayoutXAxisAnchor? = nil,
-                 paddingLeft: CGFloat = 0, constant: CGFloat = 0) {
-        
-        translatesAutoresizingMaskIntoConstraints = false
-        centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: constant).isActive = true
-        
-        if let left = leftAnchor {
-            anchor(left: left, paddingLeft: paddingLeft)
-        }
-    }
-    
-    func setDimensions(height: CGFloat, width: CGFloat) {
-        translatesAutoresizingMaskIntoConstraints = false
-        heightAnchor.constraint(equalToConstant: height).isActive = true
-        widthAnchor.constraint(equalToConstant: width).isActive = true
-    }
-    
-    func setHeight(_ height: CGFloat) {
-        translatesAutoresizingMaskIntoConstraints = false
-        heightAnchor.constraint(equalToConstant: height).isActive = true
-    }
-    
-    func setWidth(_ width: CGFloat) {
-        translatesAutoresizingMaskIntoConstraints = false
-        widthAnchor.constraint(equalToConstant: width).isActive = true
-    }
-    
-    func fillSuperview() {
-        translatesAutoresizingMaskIntoConstraints = false
-        guard let view = superview else { return }
-        anchor(top: view.topAnchor, left: view.leftAnchor,
-               bottom: view.bottomAnchor, right: view.rightAnchor)
     }
 }
