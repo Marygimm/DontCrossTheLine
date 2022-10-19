@@ -2,7 +2,10 @@
 Small experiment with UIKit and MapKit using overlays and tracking location (still needs improvement)
 
 Show Alert with app in foreground if user try to scape more than 50 meters, changing image and title : You can reset location so start new location + 50 meters, or you can turn back, if you keep going more alerts will appear.
+
 Show Notification if app in Background and user try to scape.
+
+You can also cancel and reactivate the alerts by clicking on the button.
 
 If user has no permissions for location nothing will happen, so you need to give permissions and app will be updated.
 
