@@ -16,7 +16,7 @@ class MapScreen: UIViewController {
     
     private lazy var container: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .lightGray
         return view
     }()
     
@@ -83,7 +83,7 @@ class MapScreen: UIViewController {
         view.addSubview(map)
         map.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: button.bottomAnchor, right: container.rightAnchor, paddingTop: 200, paddingLeft: 20, paddingBottom: 60, paddingRight: 20)
         map.layer.cornerRadius = 10
-        
+
         container.addSubview(image)
         image.anchor(bottom: map.topAnchor, paddingBottom: 10)
         image.centerX(inView: container)
