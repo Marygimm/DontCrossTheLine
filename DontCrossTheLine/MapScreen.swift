@@ -101,7 +101,7 @@ class MapScreen: UIViewController {
     
     
     func updateTextAndColor(danger: Bool) {
-        titleLabel.text = danger ? "POLICE WILL AREST YOU! 🚔": "This map will help you stay out of jail 🕊"
+        titleLabel.text = danger ? "POLICE WILL AREST YOU! 🚔": "We will help you stay out of jail 🕊"
         titleLabel.textColor = danger ? .red : .black
         image.image = UIImage(named: danger ? "jail" : "free")
 
