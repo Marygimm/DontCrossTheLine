@@ -113,7 +113,7 @@ class MapScreen: UIViewController {
     //MARK: - Listeners
     
     func createSubscribers() {
-        subscriber = LocationManager.shared.$isToShowAlert.sink(receiveValue: { [weak self] isToShowAlert in
+        subscriber = LocationManager.shared.$isToShowAlertRange.sink(receiveValue: { [weak self] isToShowAlert in
             if isToShowAlert {
                 DispatchQueue.main.async {
                     self?.showAlert(title: "You have reached the limit", message: "Please come back or a cop will pick you up")

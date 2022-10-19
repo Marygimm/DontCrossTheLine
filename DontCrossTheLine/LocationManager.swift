@@ -16,9 +16,13 @@ class LocationManager: NSObject, ObservableObject {
     //MARK: - Properties
     
     static let shared = LocationManager()
+    
     @Published var location: CLLocation?
+    
     let manager = CLLocationManager()
-    @Published var isToShowAlert: Bool = false
+    
+    @Published var isToShowAlertRange: Bool = false
+    
     @Published var showActivateLocation: Bool = false
 
     
@@ -90,7 +94,7 @@ extension LocationManager: CLLocationManagerDelegate {
             if UIApplication.shared.applicationState == .background {
                 createLocalNotification()
             } else {
-                isToShowAlert = true
+                isToShowAlertRange = true
             }
         }
     }
@@ -98,7 +102,7 @@ extension LocationManager: CLLocationManagerDelegate {
         checkLocationAuthorization()
     }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print(error)
+        debugPrint(error.localizedDescription)
     }
     
 }
