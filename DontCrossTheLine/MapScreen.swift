@@ -20,7 +20,7 @@ class MapScreen: UIViewController {
         return view
     }()
     
-
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
@@ -46,7 +46,7 @@ class MapScreen: UIViewController {
         button.addTarget(self, action: #selector(removeAlerts), for: .touchUpInside)
         return button
     }()
-
+    
     private let map: MKMapView = {
         let map = MKMapView()
         return map
@@ -57,19 +57,19 @@ class MapScreen: UIViewController {
     private var subscriber: AnyCancellable?
     private var subscriberChangePermissions: AnyCancellable?
     private var subscriberToLocation: AnyCancellable?
-
+    
     //MARK: - Lifecycle
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         LocationManager.shared.checkLocationServices()
         createSubscribers()
         setupUI()
-       
+        
     }
     
     //MARK: - Update UI
-
+    
     func setupUI() {
         view.addSubview(container)
         container.fillSuperview()
@@ -81,7 +81,7 @@ class MapScreen: UIViewController {
         view.addSubview(map)
         map.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: button.bottomAnchor, right: container.rightAnchor, paddingTop: 200, paddingLeft: 20, paddingBottom: 60, paddingRight: 20)
         map.layer.cornerRadius = 10
-
+        
         container.addSubview(image)
         image.anchor(bottom: map.topAnchor, paddingBottom: 10)
         image.centerX(inView: container)
@@ -89,17 +89,20 @@ class MapScreen: UIViewController {
         image.contentMode = .scaleAspectFill
         image.clipsToBounds = true
         image.layer.cornerRadius = 5
-
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            LocationManager.shared.createLocalNotification()
+        }
         
         container.addSubview(titleLabel)
         titleLabel.anchor(top: container.topAnchor, left: container.leftAnchor, bottom: image.topAnchor, right: container.rightAnchor, paddingTop: 40, paddingLeft: 20, paddingBottom: 10, paddingRight: 20)
-    
-
+        
+        
         map.delegate = self
         map.showsUserLocation = true
         map.userTrackingMode = .follow
         requestNotification()
         updateTextAndColor(danger: false)
+        
     }
     
     
@@ -107,7 +110,11 @@ class MapScreen: UIViewController {
         titleLabel.text = danger ? "SCAPING out of Jail 🚔": "Jail range allowed 🕊"
         titleLabel.textColor = danger ? .red : .black
         image.image = UIImage(named: danger ? "free" : "jail")
-
+    }
+    
+    func updateButtonTextColor(enabled: Bool) {
+        button.isEnabled = enabled
+        button.backgroundColor = enabled ? .red : .gray
     }
     
     //MARK: - Listeners
@@ -130,14 +137,13 @@ class MapScreen: UIViewController {
             if isToShowAlert {
                 DispatchQueue.main.async {
                     self?.showAlert(title: "Allow location services so we can help!", message: "Go to Settings -> Privacy and Enable Location 📍", action: UIAlertAction(title: "Ok", style: .default, handler: { _ in
-                        self?.button.isEnabled = false
-                        self?.button.backgroundColor = .gray
+                        self?.updateButtonTextColor(enabled: false)
                     }))
                     self?.updateTextAndColor(danger: false)
                 }
-            } else {
-                self?.button.isEnabled = true
-                self?.button.backgroundColor = .red
+            } else{
+                self?.updateButtonTextColor(enabled: true)
+                
             }
         })
     }
@@ -199,7 +205,7 @@ class MapScreen: UIViewController {
         button.setTitle(cancelAlerts ? "Reativate Alerts. Help me!" : "I Don't Care. Stop Alerts", for: .normal)
     }
     
-
+    
 }
 
 //MARK: - MKMapViewDelegate
