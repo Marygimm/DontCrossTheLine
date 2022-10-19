@@ -64,11 +64,11 @@
 				57DF3F3E28FF54DD00D9D055 /* AppDelegate.swift */,
 				57DF3F4028FF54DD00D9D055 /* SceneDelegate.swift */,
 				57DF3F4228FF54DD00D9D055 /* MapScreen.swift */,
+				57DF3F5828FF75EB00D9D055 /* LocationManager.swift */,
 				57DF3F4428FF54DD00D9D055 /* Main.storyboard */,
 				57DF3F4728FF54E100D9D055 /* Assets.xcassets */,
 				57DF3F4928FF54E100D9D055 /* LaunchScreen.storyboard */,
 				57DF3F4C28FF54E100D9D055 /* Info.plist */,
-				57DF3F5828FF75EB00D9D055 /* LocationManager.swift */,
 			);
 			path = DontCrossTheLine;
 			sourceTree = "<group>";
