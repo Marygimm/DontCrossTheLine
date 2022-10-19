@@ -75,7 +75,7 @@ class MapScreen: UIViewController {
         container.fillSuperview()
         
         container.addSubview(button)
-        button.anchor(left: container.leftAnchor, bottom: container.bottomAnchor, right: container.rightAnchor, paddingLeft: 20, paddingBottom: 40, paddingRight: 20, height: 50)
+        button.anchor(left: container.leftAnchor, bottom: container.bottomAnchor, right: container.rightAnchor, paddingLeft: 20, paddingBottom: 30, paddingRight: 20, height: 50)
         
         container.addSubview(map)
         view.addSubview(map)
