@@ -307,8 +307,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DontCrossTheLine/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "WE need this";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "we need this also";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need to help you know where are your limits!";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need to help you know where are your limits!";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -339,8 +339,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DontCrossTheLine/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
-				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "WE need this";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "we need this also";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need to help you know where are your limits!";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need to help you know where are your limits!";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
