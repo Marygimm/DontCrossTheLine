@@ -39,12 +39,10 @@ class MapScreen: UIViewController {
     
     private lazy var button: UIButton = {
         let button = UIButton()
-        button.setTitle("STOP Alerts!", for: .normal)
+        button.setTitle("I Don't Care. Stop Alerts", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
-        button.backgroundColor = .red
         button.layer.cornerRadius = 5
-        button.isUserInteractionEnabled = true
         button.addTarget(self, action: #selector(removeAlerts), for: .touchUpInside)
         return button
     }()
@@ -106,9 +104,9 @@ class MapScreen: UIViewController {
     
     
     func updateTextAndColor(danger: Bool) {
-        titleLabel.text = danger ? "POLICE WILL AREST YOU! 🚔": "We will help you stay out of jail 🕊"
+        titleLabel.text = danger ? "SCAPING out of Jail 🚔": "Jail range allowed 🕊"
         titleLabel.textColor = danger ? .red : .black
-        image.image = UIImage(named: danger ? "jail" : "free")
+        image.image = UIImage(named: danger ? "free" : "jail")
 
     }
     
@@ -118,7 +116,7 @@ class MapScreen: UIViewController {
         subscriber = LocationManager.shared.$isToShowAlert.sink(receiveValue: { [weak self] isToShowAlert in
             if isToShowAlert {
                 DispatchQueue.main.async {
-                    self?.showAlert(title: "You have reached the limit", message: "Please come back or police will pick you up")
+                    self?.showAlert(title: "You have reached the limit", message: "Please come back or a cop will pick you up")
                     self?.updateTextAndColor(danger: isToShowAlert)
                 }
             }
@@ -131,11 +129,15 @@ class MapScreen: UIViewController {
         subscriberChangePermissions = LocationManager.shared.$showActivateLocation.sink(receiveValue: { [weak self] isToShowAlert in
             if isToShowAlert {
                 DispatchQueue.main.async {
-                    self?.showAlert(title: "Allow location services", message: "Go to Settings -> Privacy and enable location", action: UIAlertAction(title: "Ok", style: .default, handler: { _ in
-                        exit(1)
+                    self?.showAlert(title: "Allow location services so we can help!", message: "Go to Settings -> Privacy and Enable Location 📍", action: UIAlertAction(title: "Ok", style: .default, handler: { _ in
+                        self?.button.isEnabled = false
+                        self?.button.backgroundColor = .gray
                     }))
                     self?.updateTextAndColor(danger: false)
                 }
+            } else {
+                self?.button.isEnabled = true
+                self?.button.backgroundColor = .red
             }
         })
     }
@@ -154,20 +156,24 @@ class MapScreen: UIViewController {
     }
     
     func showAlert(title: String, message: String, action: UIAlertAction? = nil ) {
+        LocationManager.shared.manager.stopUpdatingLocation()
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             if let actions = action {
                 alert.addAction(actions)
+                alert.view.tintColor = UIColor.white
             } else {
                 alert.addAction(UIAlertAction(title: "Reset Location", style: UIAlertAction.Style.destructive, handler: { [weak self]_ in
                     guard let mapAnnotations = self?.map.annotations, let overlay = self?.map.overlays.first else { return }
                     self?.map.removeAnnotations(mapAnnotations)
                     self?.map.removeOverlay(overlay)
                     LocationManager.shared.location = nil
+                    LocationManager.shared.manager.startUpdatingLocation()
                     LocationManager.shared.manager.requestLocation()
                     self?.updateTextAndColor(danger: false)
                 }))
                 alert.addAction(UIAlertAction(title: "I will go back", style: UIAlertAction.Style.default, handler: { [weak self]_ in
+                    LocationManager.shared.manager.startUpdatingLocation()
                     self?.updateTextAndColor(danger: false)
                 }))
             }
@@ -190,7 +196,7 @@ class MapScreen: UIViewController {
             LocationManager.shared.manager.startUpdatingLocation()
         }
         button.backgroundColor = cancelAlerts ? .systemIndigo : .red
-        button.setTitle(cancelAlerts ? "Reativate Alerts" : "STOP Alerts!", for: .normal)
+        button.setTitle(cancelAlerts ? "Reativate Alerts. Help me!" : "I Don't Care. Stop Alerts", for: .normal)
     }
     
 
